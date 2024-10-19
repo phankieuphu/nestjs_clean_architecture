@@ -1,0 +1,33 @@
+import { Mocked, vi } from 'vitest';
+import { IUserRepository } from 'src/interfaces';
+
+export const userRepositoryMock: Mocked<IUserRepository> = {
+  createUser: vi.fn(),
+  checkExitEmail: vi.fn(),
+  getListDepartment: vi.fn(),
+  getListUser: vi.fn(),
+  getUserDetail: vi.fn(),
+  getProfile: vi.fn(),
+  updateUser: vi.fn(),
+  deleteUser: vi.fn(),
+  getListUserContact: vi.fn(),
+  upsertUserContact: vi.fn(),
+  getUserWithLocation: vi.fn(),
+  findUserByEmail: vi.fn(),
+  getAllUserEmails: vi.fn(),
+  getAllAdminUsers: vi.fn(),
+  getAllAdminAndLeaderUsers: vi.fn(),
+  getListUserAffected: vi.fn(),
+  getUserPrivateContact: vi.fn(),
+  getListForDashboard: vi.fn(),
+  listUserNoPaginate: vi.fn(),
+  findScimUsers: vi.fn(),
+  getListUserDepartment: vi.fn(),
+  findByListId: vi.fn(),
+  getListUserWhereHaveOrder: vi.fn(),
+  upsertScimUser: vi.fn(),
+  deleteScimUser: vi.fn(),
+  getListUserByAlert: vi.fn(),
+  getListUserByListDepartment: vi.fn(),
+  getListUserByListId: vi.fn(),
+};
