@@ -3,17 +3,14 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   Post,
   Put,
   Query,
-  Req,
   Res,
   UseFilters,
   UseGuards,
-  UsePipes,
+  UsePipes
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { HttpStatusCode } from 'axios';
@@ -23,15 +20,13 @@ import {
   createUserSchema,
   getListUserSchema,
   updateUserContactSchema,
-  updateUserRoleSchema,
-  updateUserSchema,
+  updateUserSchema
 } from 'src/dtos/schema/user.schema';
 import {
   CreateUserDto,
   GetListUserDto,
   UpdateUserContactDto,
-  UpdateUserDto,
-  UpdateUserRoleDto,
+  UpdateUserDto
 } from 'src/dtos/user.dto';
 import { HttpExceptionFilter } from 'src/exceptions';
 import { JoiValidationPipe } from 'src/pipes/joi.pipe';
@@ -44,11 +39,10 @@ import { RolesGuard } from 'src/guards/roles.guard';
 import { ParseUUIDPipeCustom } from 'src/pipes/parse_uuid_custom.pipe';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
-import config from '../config/env.config';
 import { UserPermissionConstant } from 'src/constant/user_permission.constant';
 import { Permissions } from 'src/decorators/permission.decorator';
-import { PermissionsGuard } from 'src/guards/permissions.guard';
 import { OrGuard } from 'src/guards/or-guard.guard';
+import { PermissionsGuard } from 'src/guards/permissions.guard';
 
 @ApiTags('User')
 @ApiBearerAuth()
@@ -179,89 +173,5 @@ export class UserController {
       },
       res,
     );
-  }
-
-  @Put('update-role/:id')
-  @UseGuards(RolesGuard)
-  @Roles(UserConstant.ROLE_ADMIN)
-  async updateUserRole(
-    @Param('id', ParseUUIDPipeCustom) id: string,
-    @Body(new JoiValidationPipe(updateUserRoleSchema)) body: UpdateUserRoleDto,
-    @Req() req: any,
-    @Res() res: Response,
-  ) {
-    if (id === req.user.id) {
-      return this.responseUtils.success(
-        { status_code: HttpStatusCode.NoContent },
-        res,
-      );
-    }
-
-    const data = await this.userService.updateUserRole(id, body);
-    return this.responseUtils.success(
-      {
-        data,
-        status_code: HttpStatusCode.Ok,
-      },
-      res,
-    );
-  }
-
-  @Get('/preview-admin-manual-file')
-  @UseGuards(RolesGuard)
-  @Roles(UserConstant.ROLE_ADMIN)
-  async previewAdminManualFile(@Res() res: Response): Promise<void> {
-    try {
-      const adminManualFilePath = config.MANUAL_FILE.ADMIN_MANUAL_FILE_PATH;
-      const fileStream =
-        await this.userService.downloadManualFile(adminManualFilePath);
-
-      const adminManualFileName = config.MANUAL_FILE.ADMIN_MANUAL_FILE_NAME;
-      const encodedFileName = encodeURIComponent(adminManualFileName);
-
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader(
-        'Content-Disposition',
-        `inline; filename*=UTF-8''${encodedFileName}`,
-      );
-
-      fileStream.pipe(res);
-    } catch (error) {
-      throw new HttpException(
-        'Failed to preview admin manual file',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-  }
-
-  @Get('/preview-manual-file')
-  @UseGuards(RolesGuard)
-  @Roles(
-    UserConstant.ROLE_ADMIN,
-    UserConstant.ROLE_LEADER,
-    UserConstant.ROLE_STAFF,
-  )
-  async previewManualFile(@Res() res: Response): Promise<void> {
-    try {
-      const manualFilePath = config.MANUAL_FILE.MANUAL_FILE_PATH;
-      const fileStream =
-        await this.userService.downloadManualFile(manualFilePath);
-
-      const manualFileName = config.MANUAL_FILE.MANUAL_FILE_NAME;
-      const encodedFileName = encodeURIComponent(manualFileName);
-
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader(
-        'Content-Disposition',
-        `inline; filename*=UTF-8''${encodedFileName}`,
-      );
-
-      fileStream.pipe(res);
-    } catch (error) {
-      throw new HttpException(
-        'Failed to preview manual file',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
   }
 }

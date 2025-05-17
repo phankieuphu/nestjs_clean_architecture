@@ -1,16 +1,10 @@
-import { Column, DeleteDateColumn, Entity, Index, OneToMany } from 'typeorm';
+import { Column, DeleteDateColumn, Entity, Index } from 'typeorm';
 
 import { BaseEntity } from './base.entity';
 import { UserRole } from './enum/user.enum';
-import { UserPermission } from './user_permission.entity';
 
 @Entity('users')
 export class User extends BaseEntity {
-  @Column({ length: 255, nullable: true, name: 'azure_id' })
-  azure_id: string;
-
-  @Column({ length: 255, nullable: true, name: 'slack_id' })
-  slack_id: string;
 
   @Column({ type: 'enum', enum: UserRole, nullable: true, name: 'role' })
   role: string;
@@ -46,8 +40,6 @@ export class User extends BaseEntity {
   @Column({ length: 255, nullable: true, name: 'user_name' })
   user_name: string;
 
-  @OneToMany(() => UserPermission, (userPermission) => userPermission.user)
-  userPermissions: UserPermission[];
 
   @Column({ type: 'boolean', default: false, name: 'active' })
   active: boolean;
