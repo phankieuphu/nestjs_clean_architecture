@@ -15,11 +15,12 @@
     "strictNullChecks": false,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": false,
+    "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
+    "types": ["node", "vitest/globals"]
   }
 }

@@ -1,12 +1,15 @@
-Retry alert command:
+# Commands
 
-```
-npx nestjs-command alert:retry <alert-id>
+CLI commands are built with [nestjs-command](https://github.com/jiayisheng/nestjs-command) and run through `src/cli.ts`,
+which boots the full `AppModule` (database and Redis must be reachable).
+
+```bash
+# development (ts-node)
+yarn cli hello world
+
+# production (after yarn build)
+yarn cli:prod hello world
 ```
 
-Send maintenance emails command:
-
-```
-npx nestjs-command send-maintenance-emails
-```
-
+To add a command, create an `@Injectable()` class in this folder with a `@Command()` method and export it from `index.ts`.
+It is registered automatically by `AppModule`.

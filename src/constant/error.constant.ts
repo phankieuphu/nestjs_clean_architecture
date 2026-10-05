@@ -8,7 +8,7 @@ export const StatusMessages = {
   [HttpStatusCode.BadRequest]: 'Bad Request',
   [HttpStatusCode.Unauthorized]: 'Unauthorized',
   [HttpStatusCode.Forbidden]: 'Forbidden',
-  [HttpStatusCode.BadGateway]: 'BadGateway',
+  [HttpStatusCode.BadGateway]: 'Bad Gateway',
 
   [HttpStatusCode.Conflict]: 'Conflict',
   [HttpStatusCode.InternalServerError]: 'Internal Server Error',
@@ -23,10 +23,7 @@ export const getStatusCodeMessage = (statusCode: number): string => {
 
 export const ErrorMessages = {
   SUCCESS: 'Success',
-  GROUP_NAME_EXITS: 'Group name already exists',
-  EMAIL_EXITS: 'Email already exists',
-  NOT_EXITS: 'ID Not exits',
-  ALERT_NOT_FOUND: 'ALert not found',
-  QUESTION_NOT_FOUND: 'Question not found',
+  EMAIL_EXISTS: 'Email already exists',
+  USER_NOT_FOUND: 'User not found',
   EXPIRED_TIME: 'EXPIRED_TIME',
 };

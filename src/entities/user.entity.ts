@@ -5,11 +5,10 @@ import { UserRole } from './enum/user.enum';
 
 @Entity('users')
 export class User extends BaseEntity {
-
   @Column({ type: 'enum', enum: UserRole, nullable: true, name: 'role' })
-  role: string;
+  role: UserRole;
 
-  @Column({ length: '255', nullable: true, name: 'type' })
+  @Column({ length: 255, nullable: true, name: 'type' })
   type: string;
 
   @Column({ length: 255, nullable: true, name: 'name' })
@@ -39,7 +38,6 @@ export class User extends BaseEntity {
 
   @Column({ length: 255, nullable: true, name: 'user_name' })
   user_name: string;
-
 
   @Column({ type: 'boolean', default: false, name: 'active' })
   active: boolean;

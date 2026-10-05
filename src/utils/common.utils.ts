@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import moment from 'moment';
+
 @Injectable()
 export class CommonUtils {
-  constructor() {}
-
   generateString(length: number): string {
     const characters =
       'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

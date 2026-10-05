@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
-  constructor() {}
-  async getHello() {}
+  healthCheck() {
+    return { status: 'ok' };
+  }
 }

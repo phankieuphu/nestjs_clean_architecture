@@ -13,18 +13,17 @@ module.exports = {
   root: true,
   env: {
     node: true,
-    jest: true,
   },
-  ignorePatterns: ['.eslintrc.js'],
+  ignorePatterns: ['.eslintrc.js', 'dist', 'coverage'],
   rules: {
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
+    // unused-imports replaces the base/TS rules so imports can be auto-removed
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': 'off',
     'unused-imports/no-unused-imports': 'error',
-    'no-unused-vars': 'warn',
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'unused-imports/no-unused-vars': [
       'warn',
       {

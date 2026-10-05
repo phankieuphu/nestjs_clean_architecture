@@ -6,6 +6,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Request } from 'express';
+import config from 'src/config/env.config';
 
 @Injectable()
 export class TokenAuthGuard implements CanActivate {
@@ -18,12 +19,12 @@ export class TokenAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request: Request = context.switchToHttp().getRequest();
     const providedToken = request.headers['x-api-key'];
-    const expectedToken = process.env.AUTH_TOKEN;
+    const expectedToken = config.AUTH.API_KEY;
 
-    if (providedToken === expectedToken) {
+    // Reject when AUTH_TOKEN is not configured, otherwise a missing header would match `undefined`
+    if (expectedToken && providedToken === expectedToken) {
       return true;
-    } else {
-      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
+    throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
   }
 }

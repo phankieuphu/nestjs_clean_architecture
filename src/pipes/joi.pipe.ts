@@ -6,28 +6,26 @@ import {
   PipeTransform,
 } from '@nestjs/common';
 import Joi from 'joi';
-import ja from './languages/joi.ja.json';
-import { _customFieldErrorJoi } from 'src/utils/joi.util';
 
 @Injectable()
 export class JoiValidationPipe implements PipeTransform {
   constructor(private readonly schema: Joi.ObjectSchema) {}
-  transform(value: any, metadata: ArgumentMetadata) {
-    const { error } = this.schema.validate(value, {
+  transform(value: any, _metadata: ArgumentMetadata) {
+    // Use the validated value so Joi conversions and defaults are applied
+    const { error, value: validated } = this.schema.validate(value, {
       abortEarly: false,
-      messages: ja,
     });
     if (error) {
       const transformedMessage = error.details.map((detail) => ({
         message: detail.message,
-        field: _customFieldErrorJoi(detail.path),
+        field: detail.path.join('.'),
       }));
 
       Logger.debug(transformedMessage, 'JoiValidationPipe');
 
       throw new BadRequestException(transformedMessage);
     }
-    const { page, pageSize, orderBy, sortOrder, ...res } = value;
+    const { page, pageSize, orderBy, sortOrder, ...res } = validated;
     const meta = {
       page,
       pageSize,

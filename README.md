@@ -1,42 +1,104 @@
-## Description
+# NestJS Clean Architecture
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+A [NestJS](https://github.com/nestjs/nest) boilerplate with a layered architecture
+(Controller → Service → Repository), ready to be used as a base for new projects.
 
-## Installation
+Repository: https://github.com/phankieuphu/nestjs_clean_architecture
+
+## Features
+
+- **TypeORM** (MySQL) with migrations
+- **Redis** cache via `@nestjs/cache-manager`
+- **JWT** authentication (`passport-jwt`) and role based authorization (`@Roles()` + `RolesGuard`)
+- **Joi** validation for env variables and request payloads
+- **Swagger** docs at `/docs` (disabled when `NODE_ENV` is `stg`, `prd` or `production`)
+- Request context via `nestjs-cls`, events via `@nestjs/event-emitter`
+- CLI commands via `nestjs-command`
+- **Vitest** unit tests with coverage thresholds
+
+## Project structure
+
+```
+db/
+  typeorm.config.ts     # DataSource used by the TypeORM CLI
+  migrations/           # Generated migrations
+src/
+  commands/             # CLI commands (nestjs-command), see src/commands/README.md
+  config/               # env config, database config, env validation schema
+  constant/             # Constants (errors, events, user)
+  controllers/          # HTTP layer – routing, validation, response formatting
+  decorators/           # Custom decorators (@User(), @Roles())
+  dtos/                 # DTOs and Joi schemas (dtos/schema)
+  entities/             # TypeORM entities and enums
+  exceptions/           # Exception filters
+  guards/               # JWT, roles and API key guards
+  interceptors/         # Logging and request-context interceptors
+  interfaces/           # Repository contracts and shared types
+  pipes/                # Joi validation pipe
+  repositories/         # Data access layer, bound to interfaces in repositories/index.ts
+  services/             # Business logic
+  strategies/           # Passport strategies
+  utils/                # Shared helpers (response, common)
+  app.module.ts
+  main.ts               # HTTP entry point
+  cli.ts                # CLI entry point
+```
+
+## Getting started
+
+Requirements: Node.js 20+, Yarn 1.x, MySQL and Redis.
 
 ```bash
 $ yarn install
+$ cp .env.example .env   # then update the values
 ```
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `NODE_ENV` | no | `development` (default) enables TypeORM `synchronize` and query logging |
+| `APP_PORT` | no | HTTP port, default `3000` |
+| `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` | yes | MySQL connection |
+| `REDIS_HOST`, `REDIS_PORT` | yes | Redis connection |
+| `JWT_SECRET_KEY`, `JWT_TOKEN_EXPIRE` | yes | JWT signing secret and expiry (e.g. `1d`) |
+| `AUTH_TOKEN` | no | Static API key checked by `TokenAuthGuard` (`x-api-key` header) |
+| `CORS_ORIGINS` | no | Comma separated allowed origins; empty or `*` allows all |
 
 ## Running the app
 
 ```bash
 # development
-$ yarn run start
+$ yarn start
 
 # watch mode
-$ yarn run start:dev
+$ yarn start:dev
 
 # production mode
-$ yarn run start:prod
+$ yarn build && yarn start:prod
 ```
+
+- API base path: `http://localhost:3000/v1`
+- Health check: `GET http://localhost:3000/health-check`
+- Swagger: `http://localhost:3000/docs`
+
+The user endpoints (`/v1/user/*`) expect a `Bearer` JWT whose payload contains `sub` (user id) and `role`.
+This template does not ship a login endpoint; add one that signs tokens with `JwtService`, or plug in your own identity provider.
 
 ## Test
 
 ```bash
 # unit tests
-$ yarn run test
+$ yarn test
 
-# e2e tests
-$ yarn run test:e2e
+# watch mode
+$ yarn test:watch
 
 # test coverage
-$ yarn run test:cov
+$ yarn test:cov
 ```
 
-## Coverage syntax
+Coverage is measured for `services`, `utils`, `guards` and `pipes` (see `vitest.config.mjs`). To exclude a block from coverage:
 
-```bash
+```ts
 /* v8 ignore start */
 
 /* v8 ignore stop */
@@ -45,19 +107,37 @@ $ yarn run test:cov
 ## Migrations
 
 ```bash
-# generate
-$ yarn run migration:generate --name=MIGRATIONS_NAME
+# generate a migration from entity changes
+$ yarn migration:generate --name=MIGRATION_NAME
+
+# create an empty migration
+$ yarn migration:create --name=MIGRATION_NAME
+
+# run / revert / show
+$ yarn migration:run
+$ yarn migration:revert
+$ yarn migration:show
 ```
 
-# CRUD generator [More infomation](https://docs.nestjs.com/recipes/crud-generator)
-#### Throughout the life span of a project, when we build new features, we often need to add new resources to our application. These resources typically require multiple, repetitive operations that we have to repeat each time we define a new resource.
+## Commands
 
-### Generating a new resourc
-  ``` 
-  nest g resource
-  ```
+```bash
+$ yarn cli hello world
+```
 
-## Request lifecycle [Document](https://docs.nestjs.com/faq/request-lifecycle)
+See [src/commands/README.md](src/commands/README.md).
+
+## CRUD generator ([more information](https://docs.nestjs.com/recipes/crud-generator))
+
+When building new features we often need to add new resources, which require the same repetitive operations each time.
+
+### Generating a new resource
+
+```bash
+$ nest g resource
+```
+
+## Request lifecycle ([documentation](https://docs.nestjs.com/faq/request-lifecycle))
 
 1. **Incoming Request**
 2. **Middleware**
@@ -68,77 +148,43 @@ $ yarn run migration:generate --name=MIGRATIONS_NAME
    - Controller guards
    - Route guards
 4. **Interceptors (Pre-controller)**
+5. **Pipes**
    - DTO transformation/validation
-5. **Controller**
+6. **Controller**
    - Handles the incoming request
-6. **Service**
+7. **Service**
    - Business logic layer
-7. **Interceptors (Post-controller)**
+8. **Interceptors (Post-controller)**
    - Response transformation
-8. **Exception Filters**
+9. **Exception Filters**
    - Handles errors and exceptions
-9. **Response**
-
-## API Creation Guide
-
-This guide outlines the steps to create an API along with the recommended flow for changing branches.
+10. **Response**
 
 ## Creating an API
 
-Follow these steps to create an API:
+Follow these steps (see the `User` module for a complete example):
 
-1. **Create Entity (if required):**
-   - Define the data model or entity structure if it's not already defined.
-   - This step involves creating classes or database tables to represent the data your API will handle.
+1. **Create Entity (if required)** – add the entity to `src/entities` and export it from `src/entities/index.ts`
+   (all exported entities are registered with `TypeOrmModule.forFeature`). Generate a migration afterwards.
+2. **Create DTO, validation schema and interface** – DTO in `src/dtos`, Joi schema in `src/dtos/schema`,
+   repository contract in `src/interfaces`.
+3. **Create Repository** – implement the interface in `src/repositories` and bind it in `src/repositories/index.ts`.
+4. **Create Service** – business logic in `src/services`, injecting the repository through its interface token.
+   Export it from `src/services/index.ts`.
+5. **Create Controller** – routes in `src/controllers`, validate input with `JoiValidationPipe`
+   and format the output with `ResponseUtils`. Export it from `src/controllers/index.ts`.
+6. **Add tests** – `*.spec.ts` next to the file under test.
 
-2. **Create Dto, Validate, Interface:**
-   - Implement data transfer objects (DTOs) to represent the data exchanged between the client and server.
-   - Develop validation logic to ensure the integrity and correctness of the data.
-   - Define interfaces that will be implemented by the controller and service layers.
+## Branch flow
 
-3. **Create Controller:**
-   - Implement the controller layer responsible for handling incoming HTTP requests.
-   - Map endpoints to specific methods that will process the requests.
-   - Validate incoming data and invoke appropriate service methods.
+1. **Create a branch** with a descriptive name related to the task or feature.
+2. **Make changes** following the steps above.
+3. **Test** – run `yarn lint` and `yarn test` before committing.
+4. **Commit** using descriptive messages; each commit should be one logical unit of work.
+5. **Merge or rebase** onto the target branch and resolve any conflicts.
+6. **Push** the branch and open a pull request for review.
+7. **Deploy** once the pull request is approved.
 
-4. **Create Service:**
-   - Implement the business logic or application logic in the service layer.
-   - Handle complex operations, interactions with the database, and other business-specific tasks.
-   - Ensure separation of concerns between the controller and service layers.
+## License
 
-5. **Create Repository (if needed):**
-   - If your application interacts with a database, create repository classes to manage data persistence.
-   - Implement methods for querying, saving, updating, and deleting entities.
-
-## Branch Change Flow
-
-When changing branches in your version control system, follow this flow:
-
-1. **Checkout a New Branch:**
-   - Use the appropriate command to switch to a new branch.
-   - Ensure the branch name is descriptive and relates to the task or feature being worked on.
-
-2. **Make Changes:**
-   - Follow the steps outlined above to make necessary changes to the API or other parts of the codebase.
-
-3. **Commit Changes:**
-   - Commit your changes to the current branch using descriptive commit messages.
-   - Ensure each commit represents a logical unit of work and adheres to the project's coding standards.
-
-4. **Test Changes (if applicable):**
-   - If feasible, perform testing to validate the functionality and integrity of the changes made.
-   - This may include unit tests, integration tests, or manual testing depending on the nature of the changes.
-
-5. **Merge or Rebase (if necessary):**
-   - Once changes are complete and tested, merge or rebase your branch with the target branch.
-   - Resolve any conflicts that may arise during the merge process.
-
-6. **Push Changes:**
-   - Push your branch to the remote repository to make your changes available to other team members.
-
-7. **Review and Deploy (if applicable):**
-   - If required, submit your changes for code review.
-   - Once approved, deploy your changes to the appropriate environment.
-
-Following this flow ensures consistency and helps maintain a clean and organized codebase.
-
+[MIT](LICENSE)
