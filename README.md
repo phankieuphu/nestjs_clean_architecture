@@ -3,7 +3,7 @@
 A [NestJS](https://github.com/nestjs/nest) boilerplate with a layered architecture
 (Controller → Service → Repository), ready to be used as a base for new projects.
 
-Repository: https://github.com/phankieuphu/nestjs_clean_architecture
+Repository: https://github.com/phankieuphu/nestjs-clean-architecture
 
 ## Features
 

@@ -7,12 +7,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/phankieuphu/nestjs_clean_architecture.git"
+    "url": "git+https://github.com/phankieuphu/nestjs-clean-architecture.git"
   },
   "bugs": {
-    "url": "https://github.com/phankieuphu/nestjs_clean_architecture/issues"
+    "url": "https://github.com/phankieuphu/nestjs-clean-architecture/issues"
   },
-  "homepage": "https://github.com/phankieuphu/nestjs_clean_architecture#readme",
+  "homepage": "https://github.com/phankieuphu/nestjs-clean-architecture#readme",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"libs/**/*.ts\"",
